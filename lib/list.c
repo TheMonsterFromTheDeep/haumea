@@ -1,4 +1,5 @@
 #include "list.h"
+#include "exception.h"
 
 #include <string.h>
 
@@ -32,6 +33,9 @@ static void l_realloc(list l, size_t size, size_t datasize) {
         l = (tmp + 2);
         ((size_t*)tmp)[1] = size;
     }
+    else {
+        THROW(0, "Memory allocation error!");
+    }
 }
 
 list list_bytes(size_t size, size_t datasize) {
@@ -49,6 +53,7 @@ void* list_fit(list l, size_t datasize) {
 }
 
 void* list_fit_insert(list l, size_t index, size_t datasize) {
+    if(index > list_len(l)) { THROW(0,"Index out of list bounds!"); }
     if(list_len(l) == list_alloc(l)) {
         l_realloc(l, list_alloc(l) * 2 + 1, datasize);
     }
@@ -57,7 +62,13 @@ void* list_fit_insert(list l, size_t index, size_t datasize) {
     return l + index * datasize;
 }
 
+void *list_validate(list l, size_t index, size_t datasize) {
+    if(index > list_len(l)) { THROW(0,"Index out of list bounds!"); }
+    return l + index * datasize;
+}
+
 void list_backtrack(char *l, size_t index, size_t datasize) {
+    if(index >= list_len(l)) { THROW(0,"Index out of list bounds!"); }
     memmove(l + index * datasize, l + (index + 1) * datasize, (list_len(l) - index) * datasize);
     --*l_len(l);
 }

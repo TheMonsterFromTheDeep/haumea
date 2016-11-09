@@ -2,6 +2,7 @@
 #define LIST_H
 
 #include <stdlib.h>
+#include "exception.h"
 
 typedef void *list;
 
@@ -12,13 +13,14 @@ size_t list_alloc(list);
 list list_bytes(size_t,size_t);
 void *list_fit(list,size_t);
 void *list_fit_insert(list,size_t,size_t);
+void *list_validate(list,size_t,size_t);
 
 void list_free(list);
 
 #define list_of(type,size) list_bytes(size, sizeof(type));
 
-#define list_set(type,list,index,value) ((type*)list)[index] = value
-#define list_get(type,list,index) (((type*)list)[index])
+#define list_set(type,list,index,value) *((type*)list_validate(list,index,sizeof(type))) = value
+#define list_get(type,list,index) (*((type*)list_validate(list,index,sizeof(type))))
 
 #define list_add(type,list,value) *((type*)list_fit(list,sizeof(type))) = value
 #define list_insert(type,list,index,value) *((type*)list_fit_insert(list,index,sizeof(type))) = value
